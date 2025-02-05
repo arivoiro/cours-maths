@@ -1,0 +1,41 @@
+@import "variables";
+
+.contact-info {
+  width: 100%; // S'assurer qu'elle prend toute la largeur
+  max-width: 1200px; // Même largeur que le footer
+  display: flex;
+  justify-content: center; // Centre les éléments horizontalement
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 1.2rem;
+  margin: 0 auto; 
+
+  .contact-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: $text-color;
+    transition: color 0.3s ease-in-out;
+
+    &:hover {
+      color: $primary-color;
+    }
+
+    .icon {
+      font-size: 1.6rem;
+      color: $primary-color;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.3s ease-in-out;
+
+      &:hover {
+        color: $secondary-color;
+      }
+    }
+  }
+}

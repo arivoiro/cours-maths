@@ -1,0 +1,161 @@
+@import "variables";
+
+.faq-page {
+  min-height: calc(100vh - 150px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 0;
+}
+
+.faq {
+  max-width: 1650px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  color: $text-color;
+
+  h2 {
+    text-align: center;
+    color: $primary-color;
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+    position: relative;
+    padding-bottom: 1rem;
+
+    &::after {
+      content: "";
+      display: block;
+      width: 80px;
+      height: 3px;
+      background: $primary-color;
+      margin: 10px auto 0;
+      transition: width 0.3s ease-in-out;
+    }
+
+    &:hover::after {
+      width: 120px;
+    }
+  }
+
+  .faq-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .faq-item {
+    margin-top: 2.5rem;
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+    backdrop-filter: blur(5px);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0px 6px 15px rgba(255, 215, 0, 0.2);
+    }
+
+    h3 {
+      color: $primary-color;
+      font-size: 2.2rem;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      transition: all 0.3s ease-in-out;
+    }
+
+    p {
+      font-size: 1.45rem;
+      line-height: 1.8;
+    }
+
+    a {
+      color: $secondary-color;
+      font-weight: bold;
+      text-decoration: none;
+      transition: color 0.3s ease-in-out;
+
+      &:hover {
+        color: lighten($secondary-color, 10%);
+      }
+    }
+  }
+
+  .cta-text {
+    text-align: center;
+    font-size: 1.55rem;
+    margin-top: 3rem;
+    font-weight: bold;
+  }
+
+  .cta-link {
+    display: inline-block;
+    margin-top: 2rem;
+    background: $primary-color;
+    color: $bg-light;
+    font-size: 1.6rem;
+    font-weight: 600;
+    padding: 14px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.1);
+
+    &:hover {
+        color: $primary-color;
+        background: $bg-highlight;
+        box-shadow: 0px 6px 12px rgba(255, 215, 0, 0.2);
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+    .faq-page {
+      padding: 2rem 0; // Réduction du padding
+    }
+  
+    .faq {
+      max-width: 90%; // Réduction de la largeur pour éviter que ça touche les bords
+      text-align: center; // Centre tout le texte sur mobile
+  
+      h2 {
+        font-size: 1.8rem;
+      }
+  
+      .faq-container {
+        gap: 1.5rem; // Réduit l'espacement entre les FAQ items
+      }
+  
+      .faq-item {
+        padding: 1.5rem; // Réduction du padding
+        margin-top: 1.5rem;
+        text-align: left; // Garde le texte aligné à gauche dans les questions
+  
+        h3 {
+          font-size: 1.5rem; // Réduction de la taille des titres des questions
+        }
+  
+        p {
+          font-size: 1.2rem; // Réduction de la taille du texte
+        }
+      }
+  
+      .cta-text {
+        font-size: 1.3rem; // Réduction de la taille du texte CTA
+      }
+  
+      .cta-link {
+        font-size: 1.4rem;
+        padding: 12px 20px; // Ajustement du padding du bouton CTA
+      }
+    }
+  }
+  

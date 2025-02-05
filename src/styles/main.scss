@@ -1,0 +1,35 @@
+@import "variables";
+@import "header";
+@import "hero";
+@import "tarifs";
+@import "contact";
+
+
+body {
+  font-family: "Nunito sans", sans-serif;
+  background: $bg-light;
+  
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+h2, h3 {
+  color: $primary-color;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.hero, .tarifs, .contact {
+  padding: 4rem 0;
+  margin: 0 auto;
+  background: $bg-light;
+}
+
+.content {
+  flex: 1;
+}

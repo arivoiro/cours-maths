@@ -1,0 +1,78 @@
+@import "variables";
+
+.hero {
+  background: $bg-light;
+  padding: 2rem 0;
+  text-align: center;
+
+  h2 {
+    font-size: 2.5rem;
+    color: $primary-color;
+    margin-bottom: 2rem;
+  }
+
+  p {
+    font-size: 1.5rem;
+    color: $text-color;
+    max-width: 900px;
+    margin: 0 auto 2rem;
+  }
+
+  .benefits {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 1rem;
+
+    .benefit {
+      background: #333;
+      color: $text-color;
+      padding: 16px 28px;
+      border-radius: 10px;
+      box-shadow: $shadow-light;
+      font-size: 1.1rem;
+      font-weight: bold;
+      transition: 0.3s ease-in-out;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        box-shadow: $shadow-hover;
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+/* 📌 RESPONSIVE DESIGN */
+@media screen and (max-width: 768px) {
+  .hero {
+
+    padding-top: 1rem;
+    h2 {
+      font-size: 1.8rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+      max-width: 90%;
+      margin: 0 auto 1.5rem;
+    }
+
+    .benefits {
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+
+      .benefit {
+        width: 80%; // 🔹 S'assure qu'elles prennent toute la largeur de l'écran
+        min-height: 1rem; // 🔹 S'assure qu'elles ont **exactement la même taille**
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+}

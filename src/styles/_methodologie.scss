@@ -1,0 +1,175 @@
+@import "variables";
+
+.methodologie-page {
+  min-height: calc(100vh - 150px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 0;
+}
+
+.methodologie {
+  max-width: 1650px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  color: $text-color;
+
+  p {
+    font-size: 1.55rem;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+  }
+
+  h2 {
+    text-align: center;
+    color: $primary-color;
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+    position: relative;
+    padding-bottom: 1rem;
+
+    &::after {
+      content: "";
+      display: block;
+      width: 80px;
+      height: 3px;
+      background: $primary-color;
+      margin: 10px auto 0;
+      transition: width 0.3s ease-in-out;
+    }
+
+    &:hover::after {
+      width: 120px;
+    }
+  }
+
+  .section {
+    margin-top: 2.5rem;
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+    backdrop-filter: blur(5px);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0px 6px 15px rgba(255, 215, 0, 0.2);
+    }
+
+    h3 {
+      color: $primary-color;
+      font-size: 2.2rem;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      transition: all 0.3s ease-in-out;
+
+      .icon {
+        font-size: 2.4rem;
+      }
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 1rem;
+
+      li {
+        font-size: 1.45rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.8rem;
+        border-radius: 5px;
+        transition: all 0.3s ease-in-out;
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        position: relative;
+        padding-left: 1rem;
+
+        &:hover {
+          background: rgba(255, 215, 0, 0.05);
+          transform: translateX(5px);
+        }
+      }
+    }
+  }
+
+  .cta-text {
+    text-align: center;
+    font-size: 1.55rem;
+    margin-top: 3rem;
+    font-weight: bold;
+  }
+
+  .cta-link {
+    display: inline-block;
+    margin-top: 2rem;
+    background: $primary-color;
+    color: $bg-light;
+    font-size: 1.6rem;
+    font-weight: 600;
+    padding: 14px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.1);
+
+    &:hover {
+      color: $primary-color;
+      background: $bg-highlight;
+      box-shadow: 0px 6px 12px rgba(255, 215, 0, 0.2);
+    }
+  }
+}
+
+/* 📱 RESPONSIVE (Mobile max 768px) */
+@media screen and (max-width: 768px) {
+
+  .methodologie-page {
+    padding-top: 0;
+  }
+
+  .methodologie {
+    padding: 1.5rem;
+  }
+
+  .methodologie h2 {
+    font-size: 1.8rem;
+  }
+
+  .methodologie p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+
+  .methodologie .section {
+    padding: 1.5rem;
+  }
+
+  .methodologie .section h3 {
+    font-size: 1.6rem;
+  }
+
+  .methodologie .section ul li {
+    font-size: 1.2rem;
+    padding: 0.6rem;
+  }
+
+  .cta-text {
+    font-size: 1.3rem;
+  }
+
+  .cta-link {
+    font-size: 1.3rem;
+    padding: 12px 20px;
+  }
+}

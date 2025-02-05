@@ -1,0 +1,165 @@
+@import "variables";
+
+.tarifs {
+  background: $bg-light;
+  padding: 4rem 0;
+  text-align: center;
+
+  h2 {
+    margin: 0 0 1.5rem 0;
+    font-size: 2.5rem;
+    color: $primary-color;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .tarif-link {
+    text-decoration: none;
+    display: block;
+  }
+  
+  .tarif-card {
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: $shadow-light;
+    text-align: center;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 300px;
+    max-width: 400px;
+    color: #fff;
+    cursor: pointer;
+  
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: $shadow-hover;
+    }  
+  
+    h3 {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+  
+    .price {
+      font-size: 1.7rem;
+      font-weight: bold;
+      margin-top: auto;
+    }
+  
+    &.blue { background: #1E293B; } 
+    &.green { background: #2E4F4F; } 
+    &.purple { background: #5C2C2C; } 
+    &.orange { background: #4A3B47; } 
+  }  
+
+  .emoji {
+    font-size: 1.8rem;
+    margin-right: 2px;
+  }
+}
+
+/* 📌 Ajustements UNIQUEMENT sur la page Tarifs */
+.tarif-page {
+  .tarifs {
+    h2 {
+      font-size: 3rem; // Titre plus grand uniquement sur la page tarifs
+      margin-bottom: 2.5rem;
+    }
+
+    .grid {
+      max-width: 1200px; // Plus large que sur la page d'accueil
+      gap: 3rem; // Espacement plus grand entre les cartes
+    }
+
+    .tarif-card {
+      padding: 3rem; // Augmente la taille des cartes
+      max-width: 500px; // Les cartes sont plus larges
+      min-height: 230px; // Ajuste la hauteur minimum
+
+      h3 {
+        font-size: 2.2rem; // Augmente la taille des titres
+      }
+
+      .price {
+        font-size: 2.2rem; // Prix plus grand
+      }
+    }
+
+    .emoji {
+      font-size: 2.4rem; // Emoji encore plus grand pour cette page
+    }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .tarifs {
+    
+    h2 {
+      font-size: 1.8rem;
+    }
+
+    .grid {
+      grid-template-columns: 1fr; // Une seule colonne
+      gap: 1.5rem; // Réduit l'espace entre les cartes
+    }
+
+    .tarif-card {
+      min-width: unset;
+      width: 90%;
+      max-width: 350px;
+      margin: 0 auto;
+      padding: 1.8rem;
+      
+      h3 {
+        font-size: 1.4rem;
+      }
+
+      .price {
+        font-size: 1.5rem;
+      }
+    }
+  }
+
+  .tarif-page {
+    .tarifs {
+      h2 {
+        font-size: 1.8rem; // Réduction du titre sur mobile
+      }
+
+      .grid {
+        grid-template-columns: 1fr; // Une seule colonne
+        gap: 1.5rem; // Réduit l'espace entre les cartes
+      }
+
+      .tarif-card {
+        min-width: unset;
+        width: 90%;
+        max-width: 350px;
+        margin: 0 auto;
+        padding: 1.8rem;
+        min-height: 9rem; // Uniformise la hauteur des cartes
+        
+        h3 {
+          font-size: 1.4rem;
+        }
+
+        .price {
+          font-size: 1.5rem;
+        }
+      }
+
+      .emoji {
+        font-size: 1.8rem;
+      }
+    }
+  }
+}

@@ -1,0 +1,94 @@
+@import "variables";
+
+.header {
+  background: $bg-light;
+  color: white;
+  padding: 1.5rem 0;
+  box-shadow: none;
+
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1750px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+
+    li {
+      a {
+        color: white;
+        text-decoration: none;
+        font-size: 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease-in-out;
+        padding: 8px 14px;
+        border-radius: 6px;
+        display: inline-block; // ✨ Ajouté pour éviter le soulignement sur toute la ligne
+
+        &:hover {
+          color: $secondary-color;
+          background: none;
+          transform: scale(1.08);
+        }
+
+        &.active {
+          color: $primary-color;
+          border-bottom: 2px solid $primary-color;
+          display: inline-block; // ✨ Ajouté pour que le soulignement ne dépasse pas le texte
+        }
+      }
+    }
+  }
+}
+
+/* 📌 RESPONSIVE DESIGN */
+
+@media screen and (max-width: 768px) {
+  .header .container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+  }
+
+  .header nav {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .header nav ul {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    margin-bottom: 0;
+  }
+
+  .header nav ul li {
+    width: 100%;
+    text-align: center;
+  }
+
+  .header nav ul li a {
+    font-size: 1.2rem;
+    display: inline-block; // ✨ Modifié pour ne pas s'étendre sur toute la largeur
+    text-align: center;
+    padding: 8px 0;
+  }
+}
