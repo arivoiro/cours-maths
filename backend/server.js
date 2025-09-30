@@ -6,13 +6,12 @@ const sqlite3 = require("sqlite3").verbose();
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const { body, validationResult } = require("express-validator");
+const fs = require("fs");
+const path = require("path");
 
 // Routes et middleware import
 const loginRouter = require("./api/login");
 const verifyToken = require("./api/middleware");
-
-const fs = require("fs");
-const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 5000; // Render fournit le port via process.env.PORT
@@ -31,10 +30,15 @@ const loginLimiter = rateLimit({
 app.use("/api/login", loginLimiter);
 
 // ---------------------- Logs ----------------------
+const logPath = path.join("/tmp", "logs.txt"); // stocke logs dans /tmp
 function logAction(action) {
-  const logPath = path.join("/tmp", "logs.txt"); // stocke logs dans /tmp
   fs.appendFileSync(logPath, `${new Date().toISOString()} - ${action}\n`);
 }
+
+// ---------------------- Health Check ----------------------
+app.get("/healthz", (req, res) => {
+  res.status(200).send("OK");
+});
 
 // ---------------------- Routes ----------------------
 // Login
@@ -132,14 +136,13 @@ app.delete("/api/contact/:id", verifyToken, (req, res) => {
 const buildPath = path.join(__dirname, "../build");
 if (fs.existsSync(buildPath)) {
   app.use(express.static(buildPath));
-
   app.get("*", (req, res) => {
     res.sendFile(path.join(buildPath, "index.html"));
   });
 }
 
 // ---------------------- Lancement serveur ----------------------
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Serveur backend en écoute sur le port ${PORT}`);
   logAction(`Serveur démarré sur le port ${PORT}`);
 });
