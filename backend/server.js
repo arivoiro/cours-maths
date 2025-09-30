@@ -1,32 +1,25 @@
-// server.js
-import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
-import sqlite3 from "sqlite3";
-import jwt from "jsonwebtoken";
+// server.js (CommonJS)
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const sqlite3 = require("sqlite3");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const port = process.env.PORT || 10000;
 
-// -----------------
 // Middleware
-// -----------------
 app.use(bodyParser.json());
-
-// CORS pour ton frontend Vercel
 app.use(cors({
   origin: "https://maths-par-allan.vercel.app"
 }));
 
-// -----------------
-// Database (SQLite)
-// -----------------
+// SQLite
 const db = new sqlite3.Database("./contacts.db", (err) => {
   if (err) return console.error(err.message);
   console.log("Connecté à SQLite");
 });
 
-// Créer table contacts si elle n'existe pas
 db.run(`
   CREATE TABLE IF NOT EXISTS contacts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,16 +29,9 @@ db.run(`
   )
 `);
 
-// -----------------
 // Routes
-// -----------------
+app.get("/healthz", (req, res) => res.send("OK"));
 
-// Health check
-app.get("/healthz", (req, res) => {
-  res.send("OK");
-});
-
-// Login admin
 app.post("/api/login", (req, res) => {
   const { password } = req.body;
   if (password === "pmaqolzs976431") {
@@ -55,22 +41,16 @@ app.post("/api/login", (req, res) => {
   res.status(401).json({ error: "Mot de passe incorrect" });
 });
 
-// Ajouter un contact
 app.post("/api/contact", (req, res) => {
   const { nom, email, message } = req.body;
   if (!nom || !email || !message) return res.status(400).json({ error: "Champs manquants" });
 
-  db.run(
-    "INSERT INTO contacts (nom, email, message) VALUES (?, ?, ?)",
-    [nom, email, message],
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID });
-    }
-  );
+  db.run("INSERT INTO contacts (nom, email, message) VALUES (?, ?, ?)", [nom, email, message], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ id: this.lastID });
+  });
 });
 
-// Récupérer contacts (admin uniquement)
 app.get("/api/contact", (req, res) => {
   const authHeader = req.headers["authorization"];
   if (!authHeader) return res.status(401).json({ error: "Token manquant" });
@@ -96,9 +76,7 @@ app.get("/api/contact", (req, res) => {
   });
 });
 
-// -----------------
 // Start server
-// -----------------
 app.listen(port, "0.0.0.0", () => {
   console.log(`Serveur backend en écoute sur le port ${port}`);
 });
