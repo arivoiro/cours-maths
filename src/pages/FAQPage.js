@@ -1,7 +1,11 @@
 import React from "react";
 import "../styles/_faq.scss";
+import { useEffect } from "react";
 
 export default function FAQPage() {
+  useEffect(() => {
+    document.title = "Cours Maths — FAQ";
+  }, []);
   return (
     <div className="faq-page">
       <section className="faq">
