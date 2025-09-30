@@ -36,6 +36,10 @@ function logAction(action) {
   fs.appendFileSync(logPath, `${new Date().toISOString()} - ${action}\n`);
 }
 
+// ---------------------- Routes ----------------------
+// Login
+app.use("/api/login", loginRouter);
+
 // ---------------------- Database ----------------------
 const dbPath = path.join("/tmp", "database.db"); // stocke la DB dans /tmp
 const db = new sqlite3.Database(dbPath, (err) => {
@@ -51,10 +55,7 @@ db.run(`CREATE TABLE IF NOT EXISTS contacts (
   message TEXT
 )`);
 
-// ---------------------- Routes ----------------------
-
-// Login
-app.use("/api/login", loginRouter);
+// ---------------------- API Contacts ----------------------
 
 // Ajouter un contact (public) avec validation
 app.post(
@@ -63,7 +64,10 @@ app.post(
   body("email").isEmail().normalizeEmail(),
   body("message").isLength({ min: 1 }).trim().escape(),
   (req, res) => {
-    console.log("Body reçu:", req.body); // log uniquement ici
+    if (!req.body) {
+      logAction("Body vide reçu");
+      return res.status(400).json({ error: "Body vide" });
+    }
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -129,18 +133,10 @@ app.delete("/api/contact/:id", verifyToken, (req, res) => {
   });
 });
 
-// ---------------------- SERVIR FRONTEND REACT ----------------------
-const buildPath = path.join(__dirname, "../build");
-if (fs.existsSync(buildPath)) {
-  app.use(express.static(buildPath));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(buildPath, "index.html"));
-  });
-}
-
-// ---------------------- Health check ----------------------
-app.get("/healthz", (req, res) => res.send("OK"));
+// ---------------------- Health Check ----------------------
+app.get("/healthz", (req, res) => {
+  res.status(200).send("OK");
+});
 
 // ---------------------- Lancement serveur ----------------------
 app.listen(PORT, () => {
