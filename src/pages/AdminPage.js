@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect } from "react";
 import "../styles/_admin.scss";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 export default function AdminPage() {
   const [messages, setMessages] = useState([]);
   const [token, setToken] = useState(localStorage.getItem("adminToken") || "");
@@ -18,7 +20,7 @@ export default function AdminPage() {
     e.preventDefault();
     setError("");
     try {
-      const res = await fetch("http://localhost:5000/api/login", {
+      const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password })
@@ -48,7 +50,7 @@ export default function AdminPage() {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/contact?page=${page}&limit=${limit}`, {
+      const res = await fetch(`${API_URL}/api/contact?page=${page}&limit=${limit}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
@@ -77,12 +79,11 @@ export default function AdminPage() {
   const deleteMessage = async (id) => {
     if (!window.confirm("Supprimer ce message ?")) return;
     try {
-      await fetch(`http://localhost:5000/api/contact/${id}`, {
+      await fetch(`${API_URL}/api/contact/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
 
-      // Si c'était le dernier message de la page, on revient à la page précédente
       const newTotal = totalMessages - 1;
       const newTotalPages = Math.ceil(newTotal / limit);
 

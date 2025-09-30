@@ -7,13 +7,14 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const { body, validationResult } = require("express-validator");
 const fs = require("fs");
+const path = require("path");
 
 // Routes et middleware import
 const loginRouter = require("./api/login");
 const verifyToken = require("./api/middleware");
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000; // Render fournit le port via process.env.PORT
 
 // ---------------------- Sécurité ----------------------
 app.use(helmet());
@@ -121,6 +122,16 @@ app.delete('/api/contact/:id', verifyToken, (req, res) => {
     res.json({ deletedId: id });
   });
 });
+
+// ---------------------- SERVIR FRONTEND REACT ----------------------
+const buildPath = path.join(__dirname, "../build"); // chemin vers le build React
+if (fs.existsSync(buildPath)) {
+  app.use(express.static(buildPath));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(buildPath, "index.html"));
+  });
+}
 
 // ---------------------- Lancement serveur ----------------------
 app.listen(PORT, () => {
