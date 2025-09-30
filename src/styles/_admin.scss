@@ -67,8 +67,12 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 2rem;
+    box-shadow: $shadow-light;
+    border-radius: 8px;
+    overflow: hidden;
 
-    th, td {
+    th,
+    td {
       border: 1px solid $secondary-color;
       padding: 0.75rem;
       text-align: center;
@@ -77,10 +81,16 @@
     th {
       background: $bg-section;
       color: $secondary-color;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     td {
       background: $bg-highlight;
+    }
+
+    tr:nth-child(even) td {
+      background: color.scale($bg-highlight, $lightness: -5%);
     }
 
     .delete-btn {
@@ -88,7 +98,7 @@
       font-weight: bold;
       border: none;
       border-radius: 6px;
-      background: $red-color; // même rouge que déconnexion
+      background: $red-color;
       color: $bg-dark;
       cursor: pointer;
       transition: background 0.3s ease;
@@ -97,20 +107,40 @@
         background: color.scale($red-color, $lightness: -10%);
       }
     }
+  }
+
+  // ✅ PAGINATION MODERNE
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
 
     button {
-      padding: 0.25rem 0.5rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
       background: $primary-color;
       color: $bg-dark;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      font-weight: 600;
+      transition: background 0.3s ease, transform 0.2s ease;
 
-      &:hover {
+      &:hover:not(:disabled) {
         background: color.scale($primary-color, $lightness: -10%);
+        transform: translateY(-1px);
       }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    span {
+      color: $text-color;
+      font-weight: 600;
     }
   }
 

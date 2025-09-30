@@ -4,10 +4,16 @@ import "../styles/_admin.scss";
 export default function AdminPage() {
   const [messages, setMessages] = useState([]);
   const [token, setToken] = useState(localStorage.getItem("adminToken") || "");
-  const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalMessages, setTotalMessages] = useState(0);
+
+  // --- LOGIN ---
   const login = async (e) => {
     e.preventDefault();
     setError("");
@@ -29,34 +35,71 @@ export default function AdminPage() {
     }
   };
 
-  // ← Modification ici : vider le champ password lors de la déconnexion
+  // --- LOGOUT ---
   const logout = () => {
     setToken("");
     setMessages([]);
-    setPassword(""); // Vide le champ mot de passe
+    setPassword("");
     localStorage.removeItem("adminToken");
   };
 
+  // --- FETCH MESSAGES ---
   const fetchMessages = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/contact", {
+      const res = await fetch(`http://localhost:5000/api/contact?page=${page}&limit=${limit}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
-      setMessages(data);
+
+      if (Array.isArray(data.messages)) {
+        setMessages(data.messages);
+        setTotalMessages(data.total || data.messages.length);
+      } else {
+        console.error("Format inattendu reçu depuis le backend:", data);
+        setMessages([]);
+        setTotalMessages(0);
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Erreur lors du fetch des messages:", err);
+      setMessages([]);
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, page, limit]);
 
   useEffect(() => {
     if (token) fetchMessages();
-  }, [token, fetchMessages]);
+  }, [token, page, fetchMessages]);
 
+  // --- DELETE MESSAGE ---
+  const deleteMessage = async (id) => {
+    if (!window.confirm("Supprimer ce message ?")) return;
+    try {
+      await fetch(`http://localhost:5000/api/contact/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      // Si c'était le dernier message de la page, on revient à la page précédente
+      const newTotal = totalMessages - 1;
+      const newTotalPages = Math.ceil(newTotal / limit);
+
+      if (page > newTotalPages && page > 1) {
+        setPage(page - 1);
+      } else {
+        fetchMessages();
+      }
+
+    } catch (err) {
+      console.error("Erreur lors de la suppression:", err);
+    }
+  };
+
+  const totalPages = Math.ceil(totalMessages / limit);
+
+  // --- LOGIN FORM ---
   if (!token) {
     return (
       <div className="admin-page center-content">
@@ -78,48 +121,68 @@ export default function AdminPage() {
     );
   }
 
+  // --- ADMIN PANEL ---
   return (
     <div className="admin-page">
       <h2 className="center-content">📩 Messages reçus</h2>
+
       {loading ? (
         <p className="center-content">Chargement...</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nom</th>
-              <th>Email</th>
-              <th>Message</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {messages.map((msg) => (
-              <tr key={msg.id}>
-                <td>{msg.id}</td>
-                <td>{msg.nom}</td>
-                <td>{msg.email}</td>
-                <td>{msg.message}</td>
-                <td>
-                  <button
-                    className="delete-btn"
-                    onClick={async () => {
-                      if (!window.confirm("Supprimer ce message ?")) return;
-                      await fetch(`http://localhost:5000/api/contact/${msg.id}`, {
-                        method: "DELETE",
-                        headers: { "Authorization": `Bearer ${token}` }
-                      });
-                      setMessages(messages.filter((m) => m.id !== msg.id));
-                    }}
-                  >
-                    Supprimer
-                  </button>
-                </td>
+        <>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Message</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {(messages || []).map((msg, index) => (
+                <tr key={msg.id}>
+                  <td>{(page - 1) * limit + index + 1}</td>
+                  <td>{msg.nom}</td>
+                  <td>{msg.email}</td>
+                  <td>{msg.message}</td>
+                  <td>
+                    <button className="delete-btn" onClick={() => deleteMessage(msg.id)}>
+                      Supprimer
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {messages.length === 0 && (
+                <tr>
+                  <td colSpan="5" className="no-messages">Aucun message pour le moment.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {/* --- PAGINATION --- */}
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                ← Précédent
+              </button>
+              <span className="page-number">
+                Page {page} / {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              >
+                Suivant →
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       <footer className="admin-footer">

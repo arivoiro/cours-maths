@@ -27,3 +27,4 @@ yarn-error.log*
 /backend/hashpassword.js
 /backend/generatesecret.js
 /backend/database.db
+/backend/logs.txt
