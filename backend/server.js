@@ -1,8 +1,8 @@
-import express from "express";
-import bodyParser from "body-parser";
-import sqlite3 from "sqlite3";
-import jwt from "jsonwebtoken";
-import cors from "cors";
+const express = require("express");
+const bodyParser = require("body-parser");
+const sqlite3 = require("sqlite3");
+const jwt = require("jsonwebtoken");
+const cors = require("cors");
 
 const app = express();
 const port = process.env.PORT || 10000;
