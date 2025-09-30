@@ -2,7 +2,7 @@
 
 Un site vitrine moderne développé en **React** pour présenter des cours de mathématiques en ligne, les tarifs, la méthodologie et permettre aux élèves ou parents de contacter facilement l’enseignant.
 
-🌐 **Démo en ligne** : [https://cours-maths.vercel.app](https://cours-maths.vercel.app)
+🌐 **Démo en ligne** : [https://maths-par-allan.vercel.app](https://maths-par-allan.vercel.app)
 
 ---
 
