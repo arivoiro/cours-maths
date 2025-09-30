@@ -1,11 +1,13 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const fs = require("fs");
+const path = require("path");
+
 const SECRET_KEY = process.env.SECRET_KEY;
 
 function logAction(action) {
-  const line = `${new Date().toISOString()} - ${action}\n`;
-  fs.appendFileSync("logs.txt", line);
+  const logPath = path.join("/tmp", "logs.txt"); // même dossier que server.js
+  fs.appendFileSync(logPath, `${new Date().toISOString()} - ${action}\n`);
 }
 
 function verifyToken(req, res, next) {
