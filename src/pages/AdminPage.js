@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import "../styles/_admin.scss";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const API_URL = process.env.REACT_APP_API_URL || "https://maths-par-allan.onrender.com";
 
 export default function AdminPage() {
   const [messages, setMessages] = useState([]);
@@ -10,7 +10,6 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Pagination
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalMessages, setTotalMessages] = useState(0);
@@ -23,17 +22,26 @@ export default function AdminPage() {
       const res = await fetch(`${API_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ password }),
       });
+
+      if (!res.ok) {
+        if (res.status === 401) setError("Mot de passe incorrect");
+        else if (res.status === 500) setError("Erreur serveur, réessayez plus tard");
+        else setError(`Erreur inconnue : ${res.status}`);
+        return;
+      }
+
       const data = await res.json();
       if (data.token) {
         setToken(data.token);
         localStorage.setItem("adminToken", data.token);
       } else {
-        setError(data.error || "Login échoué");
+        setError("Aucun token reçu du serveur");
       }
     } catch (err) {
-      setError("Erreur réseau");
+      setError("Erreur réseau : impossible de joindre le backend.");
+      console.error(err);
     }
   };
 
@@ -51,20 +59,29 @@ export default function AdminPage() {
     setLoading(true);
     try {
       const res = await fetch(`${API_URL}/api/contact?page=${page}&limit=${limit}`, {
-        headers: { "Authorization": `Bearer ${token}` }
+        headers: { "Authorization": `Bearer ${token}` },
       });
-      const data = await res.json();
 
+      if (!res.ok) {
+        if (res.status === 401) setError("Token manquant, veuillez vous reconnecter");
+        else if (res.status === 403) setError("Token invalide ou expiré");
+        else if (res.status === 500) setError("Erreur serveur lors de la récupération des messages");
+        setMessages([]);
+        return;
+      }
+
+      const data = await res.json();
       if (Array.isArray(data.messages)) {
         setMessages(data.messages);
         setTotalMessages(data.total || data.messages.length);
       } else {
-        console.error("Format inattendu reçu depuis le backend:", data);
+        setError("Format inattendu reçu depuis le backend");
         setMessages([]);
         setTotalMessages(0);
       }
     } catch (err) {
-      console.error("Erreur lors du fetch des messages:", err);
+      setError("Erreur réseau : impossible de joindre le backend");
+      console.error(err);
       setMessages([]);
     } finally {
       setLoading(false);
@@ -79,22 +96,23 @@ export default function AdminPage() {
   const deleteMessage = async (id) => {
     if (!window.confirm("Supprimer ce message ?")) return;
     try {
-      await fetch(`${API_URL}/api/contact/${id}`, {
+      const res = await fetch(`${API_URL}/api/contact/${id}`, {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` }
+        headers: { "Authorization": `Bearer ${token}` },
       });
+
+      if (!res.ok) {
+        alert(`Erreur lors de la suppression : ${res.status}`);
+        return;
+      }
 
       const newTotal = totalMessages - 1;
       const newTotalPages = Math.ceil(newTotal / limit);
-
-      if (page > newTotalPages && page > 1) {
-        setPage(page - 1);
-      } else {
-        fetchMessages();
-      }
-
+      if (page > newTotalPages && page > 1) setPage(page - 1);
+      else fetchMessages();
     } catch (err) {
-      console.error("Erreur lors de la suppression:", err);
+      alert("Erreur réseau lors de la suppression");
+      console.error(err);
     }
   };
 
@@ -131,6 +149,7 @@ export default function AdminPage() {
         <p className="center-content">Chargement...</p>
       ) : (
         <>
+          {error && <p className="error center-content">{error}</p>}
           <table>
             <thead>
               <tr>
@@ -163,22 +182,15 @@ export default function AdminPage() {
             </tbody>
           </table>
 
-          {/* --- PAGINATION --- */}
           {totalPages > 1 && (
             <div className="pagination">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
+              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>
                 ← Précédent
               </button>
               <span className="page-number">
                 Page {page} / {totalPages}
               </span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              >
+              <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
                 Suivant →
               </button>
             </div>
@@ -187,9 +199,7 @@ export default function AdminPage() {
       )}
 
       <footer className="admin-footer">
-        <button className="logout-btn" onClick={logout}>
-          Déconnexion
-        </button>
+        <button className="logout-btn" onClick={logout}>Déconnexion</button>
       </footer>
     </div>
   );

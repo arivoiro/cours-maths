@@ -1,44 +1,50 @@
 import React, { useState } from "react";
 import "../styles/_contact.scss";
 
+const API_URL = process.env.REACT_APP_API_URL || "https://maths-par-allan.onrender.com";
+
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-const handleSubmit = async (event) => {
-  event.preventDefault();
-  setLoading(true);
-  setError(null);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
 
-  // Récupération des valeurs du formulaire
-  const nom = event.target.name.value;
-  const email = event.target.email.value;
-  const message = event.target.message.value;
+    const nom = event.target.name.value;
+    const email = event.target.email.value;
+    const message = event.target.message.value;
 
-  try {
-    const response = await fetch("http://localhost:5000/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nom, email, message }),
-    });
+    try {
+      const response = await fetch(`${API_URL}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nom, email, message }),
+      });
 
-    if (response.ok) {
-      setSubmitted(true);
-    } else {
-      setError("❌ Une erreur est survenue, veuillez réessayer.");
+      if (response.ok) {
+        setSubmitted(true);
+      } else if (response.status === 400) {
+        setError("❌ Veuillez remplir tous les champs.");
+      } else if (response.status === 500) {
+        setError("❌ Erreur serveur, veuillez réessayer plus tard.");
+      } else {
+        setError(`❌ Erreur inconnue : ${response.status}`);
+      }
+    } catch (err) {
+      setError("❌ Impossible d'envoyer le message. Vérifiez votre connexion et que le backend est en ligne.");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setError("❌ Impossible d'envoyer le message, vérifiez votre connexion.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="contact-wrapper">
       <section className="contact">
-        {!submitted && ( // Masquer titre et paragraphe après envoi
+        {!submitted && (
           <>
             <h2>📞 Contact & Réservation</h2>
             <p>Réservez un premier cours dès maintenant et donnez à votre enfant toutes les chances de réussir !</p>
@@ -58,7 +64,6 @@ const handleSubmit = async (event) => {
             <label htmlFor="message">Message :</label>
             <textarea id="message" name="message" required></textarea>
 
-            {/* Champ caché anti-spam */}
             <input type="text" name="_gotcha" style={{ display: "none" }} />
 
             {error && <p className="error-message">{error}</p>}
