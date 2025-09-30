@@ -1,14 +1,15 @@
-@import "variables";
-@import "header";
-@import "hero";
-@import "tarifs";
-@import "contact";
-
+@use "variables";
+@use "header";
+@use "hero";
+@use "tarifs";
+@use "contact";
+@use "admin"; // Pour admin-page
 
 body {
-  font-family: "Nunito sans", sans-serif;
-  background: $bg-light;
-  
+  font-family: "Nunito Sans", sans-serif;
+  background: variables.$bg-light;
+  margin: 0;
+  padding: 0;
 }
 
 .app {
@@ -18,7 +19,7 @@ body {
 }
 
 h2, h3 {
-  color: $primary-color;
+  color: variables.$primary-color;
   font-family: "Montserrat", sans-serif;
   font-weight: 800;
   letter-spacing: 1px;
@@ -27,7 +28,7 @@ h2, h3 {
 .hero, .tarifs, .contact {
   padding: 4rem 0;
   margin: 0 auto;
-  background: $bg-light;
+  background: variables.$bg-light;
 }
 
 .content {

@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Tarifs from "../components/Tarifs";
-import { useEffect } from "react";
 
 export default function TarifsPage() {
   useEffect(() => {

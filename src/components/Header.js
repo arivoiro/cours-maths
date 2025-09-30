@@ -9,11 +9,24 @@ export default function Header() {
         <h1>Allan Rivoiron - Cours particulier de Mathématiques</h1>
         <nav>
           <ul>
-            <li><NavLink to="/" className={({ isActive }) => isActive ? "active" : ""}>Accueil</NavLink></li>
-            <li><NavLink to="/methodologie" className={({ isActive }) => isActive ? "active" : ""}>Méthodologie</NavLink></li>
-            <li><NavLink to="/tarifs" className={({ isActive }) => isActive ? "active" : ""}>Tarifs</NavLink></li>
-            <li><NavLink to="/faq" className={({ isActive }) => isActive ? "active" : ""}>FAQ</NavLink></li>
-            <li><NavLink to="/contact" className={({ isActive }) => isActive ? "active" : ""}>Contact</NavLink></li>
+            <li>
+              <NavLink to="/" className={({ isActive }) => isActive ? "active" : ""}>Accueil</NavLink>
+            </li>
+            <li>
+              <NavLink to="/methodologie" className={({ isActive }) => isActive ? "active" : ""}>Méthodologie</NavLink>
+            </li>
+            <li>
+              <NavLink to="/tarifs" className={({ isActive }) => isActive ? "active" : ""}>Tarifs</NavLink>
+            </li>
+            <li>
+              <NavLink to="/faq" className={({ isActive }) => isActive ? "active" : ""}>FAQ</NavLink>
+            </li>
+            <li>
+              <NavLink to="/contact" className={({ isActive }) => isActive ? "active" : ""}>Contact</NavLink>
+            </li>
+            <li>
+              <NavLink to="/admin" className={({ isActive }) => isActive ? "active" : ""}>Admin</NavLink>
+            </li>
           </ul>
         </nav>
       </div>

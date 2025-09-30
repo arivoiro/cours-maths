@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "../styles/_methodologie.scss";
-import { useEffect } from "react";
 
 export default function MethodologiePage() {
   useEffect(() => {

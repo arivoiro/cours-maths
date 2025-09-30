@@ -6,31 +6,34 @@ export default function Contact() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setError(null);
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  setLoading(true);
+  setError(null);
 
-    const formData = new FormData(event.target);
+  // Récupération des valeurs du formulaire
+  const nom = event.target.name.value;
+  const email = event.target.email.value;
+  const message = event.target.message.value;
 
-    try {
-      const response = await fetch("https://formspree.io/f/mgvoybzr", {
-        method: "POST",
-        body: formData,
-        headers: { "Accept": "application/json" }
-      });
+  try {
+    const response = await fetch("http://localhost:5000/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nom, email, message }),
+    });
 
-      if (response.ok) {
-        setSubmitted(true);
-      } else {
-        setError("❌ Une erreur est survenue, veuillez réessayer.");
-      }
-    } catch (err) {
-      setError("❌ Impossible d'envoyer le message, vérifiez votre connexion.");
-    } finally {
-      setLoading(false);
+    if (response.ok) {
+      setSubmitted(true);
+    } else {
+      setError("❌ Une erreur est survenue, veuillez réessayer.");
     }
-  };
+  } catch (err) {
+    setError("❌ Impossible d'envoyer le message, vérifiez votre connexion.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="contact-wrapper">
