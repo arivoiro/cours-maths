@@ -1,57 +1,114 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const sqlite3 = require("sqlite3").verbose();
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const { body, validationResult } = require("express-validator");
 const fs = require("fs");
 const path = require("path");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
-// Routes et middleware import
-const loginRouter = require("./api/login");
-const verifyToken = require("./api/middleware");
+// Variables d'environnement
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
+const SECRET_KEY = process.env.SECRET_KEY;
 
-const app = express();
-const PORT = process.env.PORT || 5000; // Render fournit le port via process.env.PORT
+// Création dossier /tmp si nécessaire (Render a déjà /tmp mais sécurité)
+if (!fs.existsSync("/tmp")) fs.mkdirSync("/tmp");
 
-// ---------------------- Sécurité ----------------------
-app.use(helmet());
-app.use(cors());
-app.use(bodyParser.json());
+// Chemins pour DB et logs
+const dbPath = path.join("/tmp", "database.db");
+const logPath = path.join("/tmp", "logs.txt");
 
-// Limiteur pour login
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 min
-  max: 5,
-  message: "Trop de tentatives, réessayez plus tard."
-});
-app.use("/api/login", loginLimiter);
-
-// ---------------------- Logs ----------------------
-const logPath = path.join("/tmp", "logs.txt"); // stocke logs dans /tmp
+// Fonction de log
 function logAction(action) {
   fs.appendFileSync(logPath, `${new Date().toISOString()} - ${action}\n`);
 }
 
-// ---------------------- Health Check ----------------------
-app.get("/healthz", (req, res) => {
-  res.status(200).send("OK");
+// ---------------------- Serveur ----------------------
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// ---------------------- Sécurité ----------------------
+app.use(helmet());
+app.use(cors());
+app.use(express.json()); // Express 5 : parse JSON
+
+// Middleware debug pour body
+app.use((req, res, next) => {
+  console.log("Body reçu:", req.body);
+  next();
 });
 
-// ---------------------- Routes ----------------------
-// Login
-app.use("/api/login", loginRouter);
+// Limiteur login
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: "Trop de tentatives, réessayez plus tard."
+});
+
+// ---------------------- Routes Login ----------------------
+app.post("/api/login", loginLimiter, async (req, res) => {
+  const { password } = req.body;
+
+  if (!ADMIN_PASSWORD_HASH || !SECRET_KEY) {
+    logAction("Erreur config serveur : admin hash ou secret manquant");
+    return res.status(500).json({ error: "Server misconfiguration" });
+  }
+
+  if (!password) {
+    logAction("Login échoué : mot de passe manquant");
+    return res.status(400).json({ error: "Mot de passe manquant" });
+  }
+
+  const match = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
+  if (!match) {
+    logAction(`Login échoué pour mot de passe: ${password}`);
+    return res.status(401).json({ error: "Mot de passe invalide" });
+  }
+
+  const token = jwt.sign({ role: "admin" }, SECRET_KEY, { expiresIn: "2h" });
+  logAction("Login réussi pour admin");
+  res.json({ token });
+});
+
+// ---------------------- Middleware token ----------------------
+function verifyToken(req, res, next) {
+  if (!SECRET_KEY) {
+    logAction("Erreur config serveur: SECRET_KEY manquant");
+    return res.status(500).json({ error: "Server misconfiguration" });
+  }
+
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) {
+    logAction("Accès non autorisé: token manquant");
+    return res.status(401).json({ error: "Token manquant" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  if (!token) {
+    logAction("Accès non autorisé: token manquant dans Authorization");
+    return res.status(401).json({ error: "Token manquant" });
+  }
+
+  jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    if (err) {
+      logAction("Token invalide détecté");
+      return res.status(403).json({ error: "Token invalide" });
+    }
+    req.user = decoded;
+    next();
+  });
+}
 
 // ---------------------- Database ----------------------
-const dbPath = path.join("/tmp", "database.db"); // stocke la DB dans /tmp
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) console.error(err.message);
   else console.log("Connecté à SQLite");
 });
 
-// Create table contacts if they do not exist
+// Créer table contacts si n'existe pas
 db.run(`CREATE TABLE IF NOT EXISTS contacts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nom TEXT,
@@ -60,8 +117,7 @@ db.run(`CREATE TABLE IF NOT EXISTS contacts (
 )`);
 
 // ---------------------- API Contacts ----------------------
-
-// Ajouter un contact (public) avec validation
+// POST contact public
 app.post(
   "/api/contact",
   body("nom").isLength({ min: 1 }).trim().escape(),
@@ -70,7 +126,7 @@ app.post(
   (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      logAction(`Validation échouée pour contact: ${JSON.stringify(errors.array())}`);
+      logAction(`Validation échouée contact: ${JSON.stringify(errors.array())}`);
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -90,7 +146,7 @@ app.post(
   }
 );
 
-// Récupérer tous les contacts (admin) avec pagination
+// GET contacts admin
 app.get("/api/contact", verifyToken, (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 20;
@@ -119,7 +175,7 @@ app.get("/api/contact", verifyToken, (req, res) => {
   });
 });
 
-// Supprimer un message par ID (admin)
+// DELETE contact admin
 app.delete("/api/contact/:id", verifyToken, (req, res) => {
   const { id } = req.params;
   db.run(`DELETE FROM contacts WHERE id = ?`, [id], function (err) {
@@ -132,17 +188,23 @@ app.delete("/api/contact/:id", verifyToken, (req, res) => {
   });
 });
 
-// ---------------------- SERVIR FRONTEND REACT ----------------------
+// ---------------------- Health Check ----------------------
+app.get("/healthz", (req, res) => {
+  res.send("OK");
+});
+
+// ---------------------- Servir Frontend React ----------------------
 const buildPath = path.join(__dirname, "../build");
 if (fs.existsSync(buildPath)) {
   app.use(express.static(buildPath));
+
   app.get("*", (req, res) => {
     res.sendFile(path.join(buildPath, "index.html"));
   });
 }
 
-// ---------------------- Lancement serveur ----------------------
-app.listen(PORT, "0.0.0.0", () => {
+// ---------------------- Lancement ----------------------
+app.listen(PORT, () => {
   console.log(`Serveur backend en écoute sur le port ${PORT}`);
   logAction(`Serveur démarré sur le port ${PORT}`);
 });
