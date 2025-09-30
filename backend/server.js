@@ -40,9 +40,10 @@ function logAction(action) {
 app.use("/api/login", loginRouter);
 
 // ---------------------- Database ----------------------
-const db = new sqlite3.Database('./database.db', (err) => {
+const dbPath = path.join(__dirname, "database.db");
+const db = new sqlite3.Database(dbPath, (err) => {
   if (err) console.error(err.message);
-  else console.log('Connecté à SQLite');
+  else console.log("Connecté à SQLite");
 });
 
 // Create table contacts if they do not exist
@@ -56,7 +57,8 @@ db.run(`CREATE TABLE IF NOT EXISTS contacts (
 // ---------------------- API Contacts ----------------------
 
 // Ajouter un contact (public) avec validation
-app.post('/api/contact',
+app.post(
+  "/api/contact",
   body("nom").isLength({ min: 1 }).trim().escape(),
   body("email").isEmail().normalizeEmail(),
   body("message").isLength({ min: 1 }).trim().escape(),
@@ -84,12 +86,11 @@ app.post('/api/contact',
 );
 
 // Récupérer tous les contacts (admin) avec pagination
-app.get('/api/contact', verifyToken, (req, res) => {
+app.get("/api/contact", verifyToken, (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 20;
   const offset = (page - 1) * limit;
 
-  // Compter le total des messages
   db.get(`SELECT COUNT(*) as total FROM contacts`, (countErr, countRow) => {
     if (countErr) {
       logAction(`Erreur comptage messages: ${countErr.message}`);
@@ -98,22 +99,25 @@ app.get('/api/contact', verifyToken, (req, res) => {
 
     const total = countRow.total;
 
-    // Récupérer les messages paginés
-    db.all(`SELECT * FROM contacts ORDER BY id DESC LIMIT ? OFFSET ?`, [limit, offset], (err, rows) => {
-      if (err) {
-        logAction(`Erreur récupération messages: ${err.message}`);
-        return res.status(500).json({ error: err.message });
+    db.all(
+      `SELECT * FROM contacts ORDER BY id DESC LIMIT ? OFFSET ?`,
+      [limit, offset],
+      (err, rows) => {
+        if (err) {
+          logAction(`Erreur récupération messages: ${err.message}`);
+          return res.status(500).json({ error: err.message });
+        }
+        logAction(`Messages récupérés pour admin (page ${page}, limit ${limit})`);
+        res.json({ messages: rows, total });
       }
-      logAction(`Messages récupérés pour admin (page ${page}, limit ${limit})`);
-      res.json({ messages: rows, total });
-    });
+    );
   });
 });
 
 // Supprimer un message par ID (admin)
-app.delete('/api/contact/:id', verifyToken, (req, res) => {
+app.delete("/api/contact/:id", verifyToken, (req, res) => {
   const { id } = req.params;
-  db.run(`DELETE FROM contacts WHERE id = ?`, [id], function(err) {
+  db.run(`DELETE FROM contacts WHERE id = ?`, [id], function (err) {
     if (err) {
       logAction(`Erreur suppression message ID ${id}: ${err.message}`);
       return res.status(500).json({ error: err.message });
@@ -124,7 +128,7 @@ app.delete('/api/contact/:id', verifyToken, (req, res) => {
 });
 
 // ---------------------- SERVIR FRONTEND REACT ----------------------
-const buildPath = path.join(__dirname, "../build"); // chemin vers le build React
+const buildPath = path.join(__dirname, "../build");
 if (fs.existsSync(buildPath)) {
   app.use(express.static(buildPath));
 
@@ -135,6 +139,6 @@ if (fs.existsSync(buildPath)) {
 
 // ---------------------- Lancement serveur ----------------------
 app.listen(PORT, () => {
-  console.log(`Serveur backend en écoute sur http://localhost:${PORT}`);
+  console.log(`Serveur backend en écoute sur le port ${PORT}`);
   logAction(`Serveur démarré sur le port ${PORT}`);
 });
